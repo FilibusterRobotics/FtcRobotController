@@ -29,13 +29,12 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 /*
  * This file contains an example of a Linear "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -64,33 +63,23 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="v1Joeiy", group="Linear OpMode")
-//@Disabled
+@TeleOp(name = "v1Joeiy", group = "Linear OpMode")
 public class v1Joeiy extends LinearOpMode {
 
-    // Declare OpMode members for each of the 4 motors.
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor FL = null;
-    private DcMotor BL = null;
-    private DcMotor FR = null;
-    private DcMotor BR = null;
-    private DcMotor joeiysBallLauncher = null;
-    private DcMotor joeiysBallCollecter = null;
-    VoltageSensor batteryVoltage = hardwareMap.voltageSensor.iterator().next();
-
-
+    private final ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        FL = hardwareMap.get(DcMotor.class, "front_left_drive");
-        BL = hardwareMap.get(DcMotor.class, "back_left_drive");
-        FR = hardwareMap.get(DcMotor.class, "front_right_drive");
-        BR = hardwareMap.get(DcMotor.class, "back_right_drive");
-        joeiysBallLauncher = hardwareMap.get(DcMotor.class,"joeiysBallLauncher");
-        joeiysBallCollecter = hardwareMap.get(DcMotor.class,"joeiysBallCollecter");
+        DcMotor FL = hardwareMap.get(DcMotor.class, "FL");
+        DcMotor BL = hardwareMap.get(DcMotor.class, "BL");
+        DcMotor FR = hardwareMap.get(DcMotor.class, "FR");
+        DcMotor BR = hardwareMap.get(DcMotor.class, "BR");
+        DcMotor joeiysBallLauncher = hardwareMap.get(DcMotor.class, "joeiysBallLauncher");
+        DcMotor joeiysBallCollecter = hardwareMap.get(DcMotor.class, "joeiysBallCollecter");
+        VoltageSensor batteryVoltage = hardwareMap.voltageSensor.iterator().next();
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -112,7 +101,6 @@ public class v1Joeiy extends LinearOpMode {
         BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -122,77 +110,58 @@ public class v1Joeiy extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            double max;
-
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x;
+            double yaw = gamepad1.right_stick_x;
             double JBLC = gamepad2.right_trigger;
             double volt = batteryVoltage.getVoltage();
 
-
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double frontLeftPower  = axial + lateral + yaw;
+            double frontLeftPower = axial + lateral + yaw;
             double frontRightPower = axial - lateral - yaw;
-            double backLeftPower   = axial - lateral + yaw;
-            double backRightPower  = axial + lateral - yaw;
+            double backLeftPower = axial - lateral + yaw;
+            double backRightPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
-            max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
+            double max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
             max = Math.max(max, Math.abs(backLeftPower));
             max = Math.max(max, Math.abs(backRightPower));
 
             if (max > 1.0) {
-                frontLeftPower  /= max;
+                frontLeftPower /= max;
                 frontRightPower /= max;
-                backLeftPower   /= max;
-                backRightPower  /= max;
+                backLeftPower /= max;
+                backRightPower /= max;
             }
-            if (gamepad2.right_bumper){
-            joeiysBallCollecter.setPower(1);}
-            if (gamepad2.left_bumper){
-            joeiysBallCollecter.setPower(0);}
-            if (gamepad1.right_bumper){
-                FL.setPower(frontLeftPower/4);
-                FR.setPower(frontRightPower/4);
-                BL.setPower(backLeftPower/4);
-                BR.setPower(backRightPower/4);}
-            if (!gamepad1.right_bumper) {
+            if (gamepad2.right_bumper) {
+                joeiysBallCollecter.setPower(1);
+            }
+            if (gamepad2.left_bumper) {
+                joeiysBallCollecter.setPower(0);
+            }
+            if (gamepad1.right_bumper) {
+                FL.setPower(frontLeftPower / 4);
+                FR.setPower(frontRightPower / 4);
+                BL.setPower(backLeftPower / 4);
+                BR.setPower(backRightPower / 4);
+            } else {
                 FL.setPower(frontLeftPower);
                 FR.setPower(frontRightPower);
                 BL.setPower(backLeftPower);
-                BR.setPower(backRightPower);}
+                BR.setPower(backRightPower);
+            }
 
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
-            // Once the correct motors move in the correct direction re-comment this code.
-
-            /*
-            frontLeftPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            backLeftPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            frontRightPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            backRightPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
-
-            // Send calculated power to wheels
-
-            //joeiysBallCollecter.setPower(JBCP);
             joeiysBallLauncher.setPower(JBLC);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
-            telemetry.addData("voltage",volt);
+            //telemetry.addData("Status", "Run Time: " + runtime);
+            telemetry.addData("WP", (frontLeftPower + frontRightPower + backLeftPower + backRightPower) / 4);
+            telemetry.addData("voltage", volt);
+            telemetry.addData("LauncherPower",joeiysBallLauncher.getPower());
             telemetry.update();
         }
-    }}
+    }
+}
